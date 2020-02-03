@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<!--Authors: Evan Wetsch and Jackson Geis
+Project 2: Javascript
+project2.html-->
+
+<head>
+<meta charset= "utf=8" />
+<!--<style type="text/css">
+</style>
+-->
+
+<script language = "JavaScript">
+
+//These are all values that need to be used widely throughout the program in multiple functions
+//They are explained when they are brought up in functions to why they were needed.
+
+//win value to see if there was a winner 
+var win = -1
+//constants for maxsize and minsize for board 
+const maxSize = 10;
+const minSize = 4;
+//global array to hold all cell values 
+var gameBoard = [];
+//Global variable to determine playerTurn
+var playerTurn = 1;
+//three prompts to hold values from users
+var p1, p2, boardSize=-1;
+//Scores for the players 
+var s1 = 0;
+var s2 = 0;	
+//Number of clicks 
+var clicks = 0;
+//Hold cell values that will be needed for displayCell function
+var first , second
+var firstID , secondID
+//global size and global array of colors.
+var size = 0;
+var colors= new Array ("maroon","red","orange","yellow","green","purple","lime","blue","gray","white");
+
+function createBoard(size){
+	
+	
+	//Creates the 2-D array and sets all values to " "
+	for (var i=0; i<size; i++){
+		gameBoard[i] = [];
+		for (var j = 0; j < size; j++){
+			gameBoard[i][j] = " ";
+		}
+	}
+
+	//This loop will first find a random number 0-9 called temp.
+	//The temp number is linked with the array colors so each number represents a different colors
+	//This will then make cell values and load the entire 2-D array.
+	for (var i=0; i < size; i++){	
+		for (var j=0; j < size; j++){
+			
+			//This if statement makes sure the cell being used is not filled first 
+			if (gameBoard[i][j] == " ") {	
+				var cellVal = "";
+				var colorNumber = 0;
+				//find random number and also a random temp to find the color
+				var temp = Math.floor(Math.random() * maxSize);
+				colorNumber = Math.floor(Math.random() * 4 + 1)
+				
+				//Cell value is the color followed by a "," then the number EX: blue,4
+				cellVal = colors[temp]+","+colorNumber;
+				
+				//Once the loop finds the first spot that is empty place the cellVal there
+				gameBoard[i][j] = cellVal;
+				
+				//Find 2 random numbers X and Y to place the second copy of the cellVal
+				var	randomX = Math.floor(Math.random() * size );
+				var	randomY = Math.floor(Math.random() * size );
+			//keep coming up with random coordinates to find an empty cell to put a matching cell for the one we just populated
+			while (gameBoard[randomX][randomY] != " ") {
+				randomX = Math.floor(Math.random() * size );
+				randomY = Math.floor(Math.random() * size );
+			}			
+			gameBoard[randomX][randomY] = cellVal	
+			}
+			}
+		}
+		
+		//Call the function displayBoard
+		displayBoard(size,gameBoard);
+	}
+
+
+//Display cell is a core function of this program.
+//It will be the one that displays the cell's color and value, know what player turn it is 
+// and also find if they were a match or not 
+function displayCell(size,gameBoard){
+	for (var i =0; i < size; i++){
+		for (var j = 0; j < size; j++){
+			
+			//Loop through the board. If the cell's innerHTML value is still as listed below
+			// there will still be a on click event for them.
+			if (document.getElementById(i+","+j).innerHTML == "-----------"){
+			
+			//Add a onclick event with a function.
+			document.getElementById(i+","+j).onclick=function(){
+				
+				
+				//This will find the cell's id. From that id it will look it up in the gameBoard
+				// array to find the color and colorNum from the colorsplit.
+				var idHolder = this.id
+				var idSplit = idHolder.split(",")
+				var colorNum = gameBoard[idSplit[0]][idSplit[1]];
+				//colorSplit will hold the color and number for each cell
+				var colorSplit = colorNum.split(",")
+				
+				//if clicks are less than 2 continue with the function.
+				if (clicks < 2){
+					//add one to click global value to see where they are in the game
+					clicks += 1;
+					if (clicks == 1){
+						//first will be the colorNum which is the entire cell's value
+						first =  colorNum
+						//also grab the id for the cell
+						firstID = idHolder
+						//change the background color to the color in the cell via colorSplit[0]
+						this.style.backgroundColor = colorSplit[0]
+						//cahnge innter html the the cell colorNum vis colorSplit[1]
+						this.innerHTML = "-----"+colorSplit[1]+"-----"
+						//This function displayCell is called again to make it so the card just
+						//displayed cannot be clicked again
+						displayCell(size, gameBoard)
+					}
+					else{
+						//same as above and now clicks will == 2
+						second = colorNum
+						secondID = idHolder
+						playerTurn += 1;
+						this.style.backgroundColor = colorSplit[0]
+						this.innerHTML = "-----"+colorSplit[1]+"-----"		
+					}
+					
+					//Once clicks == 2 it will jump into the second part of the function.
+					if (clicks == 2){		
+						
+						//if the two cells selected match and it is player 1 turn
+						if (first == second && playerTurn % 2 == 0){
+							//give a point to player 1 
+							s1 += 1;
+							//playerTurn is updated since it will remain player 1 turn after a match
+							playerTurn += 1;
+							//update score
+							document.getElementById("s1").innerHTML = s1;
+							//display it's a match and still your turn in playerControl
+							document.getElementById("playerControl").innerHTML = "It's a match! "+ p1 +" it is still your turn"
+							//Disable playerControl click option
+							document.getElementById("playerControl").onclick = ""
+							//Simply display the two matched values with a background as white
+							// and HTML value as matched 
+							document.getElementById(firstID).innerHTML = "Matched"
+							document.getElementById(firstID).style.backgroundColor = "white"
+							document.getElementById(secondID).innerHTML = "Matched"
+							document.getElementById(secondID).style.backgroundColor = "white"
+							document.getElementById("playerControl").onclick = ""
+							//after each one check for a win and call displayCell once again
+							// So that those cells matched cannot be clicked anymore.
+							checkWin();
+							displayCell(size, gameBoard)
+						}
+						
+						//Same as above,but if it is player 2 who makes the match
+						else if (first == second && playerTurn % 2 == 1){
+							s2 += 1;
+							playerTurn += 1;
+							document.getElementById("s2").innerHTML = s2;
+							document.getElementById("playerControl").innerHTML = "It's a match! "+ p2 +" it is still your turn."
+							document.getElementById("playerControl").onclick = ""
+							document.getElementById(firstID).innerHTML = "Matched"
+							document.getElementById(firstID).style.backgroundColor = "white"
+							document.getElementById(secondID).innerHTML = "Matched"
+							document.getElementById(secondID).style.backgroundColor = "white"
+							document.getElementById("playerControl").onclick = ""
+							checkWin();
+							displayCell(size, gameBoard)
+						}
+							
+						//If it is not a match disable the playboard so nothing can be clicked.
+						//Then call the flip function				
+						else if (first != second)  {
+							disableBoard()
+							//must pass in firstID,secondID and second cell value
+							flip(firstID,secondID,second);
+						}
+							//after the end of the 2 clicks, reset all the values to empty
+							//so that the process can be repeated
+							first = ""
+							second = ""
+							clicks = 0
+							firstID = ""
+							secondID = ""
+						}											
+				}
+			}
+	}
+	
+	//If the cell innerHTML was not "-----------" make it not clickable
+	else {
+		document.getElementById(i+","+j).onclick = "";
+	}
+}
+	}
+}
+
+function flip(firstID,secondID,second){
+	//display that it was not a match and you must click the message to flip back
+	document.getElementById("playerControl").innerHTML = "Not a match " + second +" please click here to flip over";
+	//On click the two cell's will be flipped back over by making their color white
+	// and the original innerhtml value appear again "-----------"
+	document.getElementById("playerControl").onclick=function () {
+		document.getElementById(firstID).style.backgroundColor = "white"
+		document.getElementById(firstID).innerHTML = "-----------"
+		document.getElementById(secondID).style.backgroundColor = "white"
+		document.getElementById(secondID).innerHTML = "-----------"
+		//will check the playTurn global value to decide whose turn it is next and 
+		// will display that in control message after being clicked.
+		if (playerTurn %2 == 1){
+			document.getElementById("playerControl").innerHTML = p1+"'s Turn"
+		}
+		if (playerTurn %2 == 0){
+			document.getElementById("playerControl").innerHTML = p2+"'s Turn"
+		}
+		//call the displayCell function once again to fix all clickable cells back to normal
+		displayCell(size, gameBoard);
+	}
+}
+
+//Simply checks if there is a winner
+function checkWin(){
+	//Finds what the max score would be depending on board size
+	var maxScore = (boardSize*boardSize) / 2;
+	//If added scores == maxscore there should be a winner or a tie.
+	var addedScores = s1 + s2;
+	//check who the winner or tie is. Will alert who won or tied then disable everything
+	// So nothing can be clicked
+	if (addedScores == maxScore){
+		
+		if (s1 > s2){
+			document.getElementById("playerControl").innerHTML = p1+ " WINS!";
+			disableAll();
+			alert (p1 + "WINS! Refresh to play again")
+		}
+		if (s2 > s1){
+			document.getElementById("playerControl").innerHTML = p2+ " WINS!";
+			disableAll();
+			alert (p2 + "WINS! Refresh to play again")
+		}
+		
+		if (s1 == s2){
+			document.getElementById("playerControl").innerHTML = "It's a tie.";
+			disableAll();
+			alert ("It's a Tie. Refresh to play again.")
+		}
+		
+	}
+	
+	
+}
+
+//This function makes it so the playing board cannot be clicked any further to prevent unwanted clicks
+function disableBoard(){
+	for (var i=0; i < size; i++ ){
+		for (var j = 0; j < size; j++){
+			document.getElementById(i+","+j).onclick = "";
+		}
+	}
+}
+
+
+function displayBoard(size,gameBoard){
+	//Takes the gameBoard array and also the size argument
+	//Inserts the correct number or rows and cells depending on the size entered by the user
+	for (var i = 0; i < size; i++){
+		//uses the theBoard id in the below HTML to display the table 
+		var theBoard = document.getElementById("theBoard");
+		var row = theBoard.insertRow(0);
+		for (var j = 0; j <size; j++){
+			var cell = row.insertCell(j);
+			//Each cell will have the same HTML value shown
+			var text ="-----------"
+			cell.appendChild(document.createTextNode(text));
+			//Give each cell a unique id EX: 1,2
+			cell.id = i+","+j;
+		}
+	}
+	//Call the control function once the board has been displayed 
+	control();
+	//Now we can call displayCell.
+	displayCell(size,gameBoard)
+	
+}
+//This disables all onclick events on the entire board/website so nothing can be clicked
+//Helpful when somebody wins or conceded.
+function disableAll(){
+	for (var i=0; i < size; i++ ){
+		for (var j = 0; j < size; j++){
+			document.getElementById(i+","+j).onclick = "";
+		}
+	}
+	document.getElementById("concede").onclick = "";
+	document.getElementById("playerControl").onclick = "";
+	
+}
+
+function control(){
+	
+	//This adds the control message for the users. States whose turn it is and 
+	//other various messages while playing.
+	var controlBoard = document.getElementById("controlBoard");
+	var row2 = controlBoard.insertRow(0);
+	var playerControl = row2.insertCell(0);
+	playerControl.appendChild(document.createTextNode(p1+"'s Turn"));
+	playerControl.id = "playerControl";
+	//Insert a concede game button next to the control setting
+	playerControl = row2.insertCell(1);
+	playerControl.appendChild(document.createTextNode("Concede."));
+	playerControl.id = "concede";
+	
+	//If clicked the game is ended everything is disabled and will display who conceded and
+	// also who won.
+	document.getElementById("concede").onclick = function () {
+		
+		if (playerTurn %2 == 1){
+			document.getElementById("playerControl").innerHTML = p1+" Conceded. " + p2 +" wins."
+			alert (p2 + " WINS. Please refresh to play again")
+			disableAll();
+		}
+		if (playerTurn %2 == 0){
+			document.getElementById("playerControl").innerHTML = p2+" Conceded. "+ p1 + " wins."
+			alert (p1 + " WINS. Please refresh to play again")
+			disableAll();
+		}		
+		
+	}
+	
+	//just displays message above the control message in the table.
+	var row = controlBoard.insertRow(0);
+	var cell = row.insertCell(0)
+	text = "Message"
+	cell.appendChild(document.createTextNode(text))
+	cell.id = "message"
+	return;
+	}
+
+
+//function used to receive player and game infromation
+function userPrompt(){
+	
+	//Three prompts to find player1 name, player2 name, and board size
+	p1 = prompt("Please enter Player 1's name: ","");
+	
+	//Set the p1 value to player name in scoreboard table and set their score to 0
+	document.getElementById("P1").innerHTML = p1;
+	document.getElementById("s1").innerHTML = s1;
+	p2 = prompt("Please enter Player 2's name: ","");
+	//Set the p2 value to player name in scoreboard table and set their score to 0
+
+	document.getElementById("P2").innerHTML = p2;
+	document.getElementById("s2").innerHTML = s2;
+	boardSize = prompt("Please enter the board size(Only even numbers 4-10 accepted): ","");
+	
+	//Change boardSize to an int and check to make sure it is even between 4-10
+	size = parseInt(boardSize);
+	while (size % 2 != 0 || size < minSize || size > maxSize){
+		boardSize = prompt("Invalid Input: Please enter the board size(Only even numbers 4-10 accepted): ","");
+		size = parseInt(boardSize);
+	}
+	//Call createboard
+	createBoard(size);
+	
+	
+	}	
+	
+function startGame(){
+		//Once you call userPrompt everything will be setup.
+		userPrompt();
+
+	}
+
+//Below is HTML so we can display the three tables needed.
+</script>
+</head>
+<body>
+<table id = "scoreBoard">
+	<style>
+	table,th,td {
+		border: 1px solid black;
+	}
+	</style>
+
+	<tr>
+		<th>Players</th>
+		<th>Score</th>
+	</tr>
+	<tr>
+		<th id="P1"> </th>
+		<th id="s1"> </th>
+	</tr>	
+	<tr>
+		<th id="P2"> </th>
+		<th id = "s2"> </th>
+	</tr>	
+</table>
+<table id="theBoard">
+	
+</table>
+
+<table id="controlBoard">
+
+</table>
+<script>
+	startGame();
+</script>
+</body>
+</html>

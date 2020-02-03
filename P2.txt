@@ -1,0 +1,44 @@
+AUTHORS: Evan Wetsch , Jackson Geis
+
+No other refrences used outside examples given and W3 school.
+No other collaborations.
+URL:
+http://www.cs.uky.edu/~emwe235/Project2_1234.html
+
+DESCRIPTION:
+
+This project is a matching game. When opening the game it will ask for three items player1,player2
+and also how large the board will be. Once that is inputed, it will start by stating it is 
+player 1's turn. Player 1 will select two tiles and it will determine if it is a match or not.
+On a match that player will gain a point and will continue to be their turn. If it is not a match, 
+the two tiles will be flipped once the control message is clicked and those tiles will be turned
+over to hide the color and number. The game then will move onto the next players's turn. The game
+will end when all tiles are matched. The game will then display who won or if it is a tie and 
+disable all click events so nothing can be clicked on. To play again you must refresh the game 
+to reset everything.
+
+QUESTIONS:
+
+1. This is because the file is just a single HTML file. If you have the file on your machine
+	then you can open it up and play it without having to go to any website. So even if the
+	html file wasn't on the web based server you could still play and test the game.
+	
+2. This time we needed a random name for the project due to the project being a single HTML file.
+	Last project the html file called the cgi file which did most of the work and a random user
+	could not open up the cgi file and see the code. If you have the link to the website then
+	you can inspect the html page and see all of the javascript that makes the project work.
+	Anybody could take your work or copy your code knowing the website URL.
+	
+3. To store the gameboard we used a 2-D array. Each spot in the array would represent a single
+	cell. The array is the size of NxN depending on how large the board is from the user.
+	Each cell spot is a string holding the data needed. It is setup like this color,number.
+	An example would be a string "blue,3". From that we can seperate the string to find the
+	values needed to be displayed. We also needed an array of colors to randomly pick colors.
+	
+4. No you should not be able to click anywhere besides what is required. In the code click
+	events would be disabled or do nothing when they should not be able to be clicked. 
+	The concede button will always be clickable if a player wants to forfeit. An example
+	of this would be once you turn over one tile you should not be able to click on the 
+	same one again. Or even once two are turned over the entire board is diabled and the 
+	only place you should be able to click is to turn over the two cells or to concede the
+	game. Once the game ends everything is disabled also. 
